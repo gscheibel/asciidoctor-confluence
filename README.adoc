@@ -4,33 +4,85 @@
 
 = Asciidoctor-Confluence {version}
 
-Asciidoctor-confluence is a ruby gem that takes Asciidoc files, parse them using https://github.com/asciidoctor/asciidoctor[Asciidoctor] and push the result into https://www.atlassian.com/software/confluence[Confluence].
+Asciidoctor-confluence is a ruby gem that takes Asciidoc files, parses them using https://github.com/asciidoctor/asciidoctor[Asciidoctor] and pushes the result into https://www.atlassian.com/software/confluence[Confluence].
+
 This gem currently supports Asciidoctor {asciidoctor-base-version} +
+
 This gem is compatible with Confluence {confluence-version}
 
-== How to use it ?
+== Pre-requisites
 
-First you need to download and install the gem
+You must have an Atlassian Confluence server provisioned as the content destination for this tool.
 
-[source, ruby]
-----
+If you do not have a Confluence server, you can use a Docker container. It is available from 
+https://registry.hub.docker.com/u/cptactionhank/atlassian-confluence/. You need to have a test licence key to use the Docker container test server.
+
+== Installation
+
+To try +asciidoctor-confluence+ you can choose one of the following options:
+
+Download the Published Gem:
+[source]
 gem install asciidoctor-confluence
-----
 
-Then to create a page
+Install the Latest Build
+
+. Install the gem locally (at the moment it has not been publish to rubygem)
+.. Clone the github repository locally `git clone https://github.com/gscheibel/asciidoctor-confluence.git`
+.. Built it `gem build asciidoctor-confluence.gemspec`
+.. Install it `gem install ./asciidoctor-confluence.{version}.gem`
+.. To check it has been done correctly `asciidoctor-confluence -v` should display `asciidoctor-confluence: {version}`
+
+== Usage
+
+=== Create a Page 
+
+If your Confluence site uses a flat docs structure, you can use this command to push a document up at the `SPACEKEY` level. 
+
+NOTE: If you have sub-pages acting like nodes, follow the instructions in <<Create_Nested_Page>>.
 
 [source]
 ----
 asciidoctor-confluence --host HOSTNAME --spaceKey SPACEKEY --title TITLE --username USERNAME --password PASSWORD file.adoc
 ----
 
-To update a page
+[[Create_Nested_Page]]
+=== Create a Nested Page
+
+The tool can not currently create new pages in a nested page structure (that is, it can not recurse down the tree):
+
+For example, this space structure is not supported when creating a brand new document node: 
+
+`/display/SPACEKEY/Draft+Documentation`
+
+`/display/SPACEKEY/Released+Documentation`
+
+If your Confluence Docs site is set up like this, you will need to first create a page and add a title and some placeholder text. 
+
+. Click `Create => Blank Page`.
+. Add the same title as your document.
+. Add some placeholder text. `sldkfsl` is perfectly fine.
+. Save the page. You will get a node name similar to:
+
+  /display/SPACENAME/Document+Name
+. Run the <<Update_a_Page>> command to overwrite the contents of your document over the placeholder file.
+
+
+[[Update_a_Page]]
+=== Update a Page Using the File Name Argument
 [source]
 ----
 asciidoctor-confluence --host HOSTNAME --spaceKey SPACEKEY --title TITLE --username USERNAME --password PASSWORD --update file.adoc
-#or
+----
+
+[[Update_a_PageID]]
+=== Update a Page using PageID Argument
+[source]
+----
 asciidoctor-confluence --host HOSTNAME --spaceKey SPACEKEY --title TITLE --username USERNAME --password PASSWORD --update --pageid PAGEID file.adoc
 ----
+
+== Parameters
 
 Here is the list of arguments that can used with this gem
 
@@ -64,7 +116,7 @@ Here is the list of arguments that can used with this gem
 |
 
 |update
-|false
+|no
 |Indicate that the page must be updated instead of created. No values are required for this option
 |
 
@@ -74,19 +126,5 @@ Here is the list of arguments that can used with this gem
 |
 |===
 
-
-== Want to try it ?
-
-If you want to try asciidoctor-confluence you can either download the gem:
-[source]
-gem install asciidoctor-confluence
-
-Or install from the source
-
-. Install the gem locally (at the moment it has not been publish to rubygem)
-.. Clone the github repository locally `git clone https://github.com/gscheibel/asciidoctor-confluence.git`
-.. Built it `gem build asciidoctor-confluence.gemspec`
-.. Install it `gem install ./asciidoctor-confluence.{version}.gem`
-.. To check it has been done correctly `asciidoctor-confluence -v` should display `asciidoctor-confluence: {version}`
 . Have a Confluence instance
-.. If you don't have a Confluence server, you can use a Docker container (e.i.: https://registry.hub.docker.com/u/cptactionhank/atlassian-confluence/), the option requires therefore an Atlassian account so it can generate a trial licence key.
+. If you don't have a Confluence server, you can use a Docker container (e.i.: https://registry.hub.docker.com/u/cptactionhank/atlassian-confluence/), the option requires therefore an Atlassian account so it can generate a trial licence key.
